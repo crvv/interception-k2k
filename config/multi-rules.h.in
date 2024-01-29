@@ -1,0 +1,5 @@
+{ .keys = { KEY_RIGHTALT, KEY_E }, .to_key = KEY_UP },
+{ .keys = { KEY_RIGHTALT, KEY_S }, .to_key = KEY_LEFT },
+{ .keys = { KEY_RIGHTALT, KEY_D }, .to_key = KEY_DOWN },
+{ .keys = { KEY_RIGHTALT, KEY_F }, .to_key = KEY_RIGHT },
+{ .keys = { KEY_RIGHTALT, KEY_M }, .to_key = KEY_DELETE },
