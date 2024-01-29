@@ -1,35 +1,22 @@
 CFLAGS += -std=c99 -O3 -g -Wall -Wextra -Werror -Wno-type-limits
-TIMEOUT ?= 10
 
-CONFIG_DIR ?= default
-OUT_DIR := out
-INSTALL_DIR ?= /opt/interception
-
-TARGETS := $(addprefix $(OUT_DIR)/,$(notdir $(wildcard $(CONFIG_DIR)/*)))
+CONFIG_DIR ?= config
 
 .PHONY: all
-all: $(TARGETS)
+all: k2k
 
-$(OUT_DIR)/%: k2k.c $(CONFIG_DIR)/%/map-rules.h.in $(CONFIG_DIR)/%/tap-rules.h.in $(CONFIG_DIR)/%/multi-rules.h.in | $(OUT_DIR)
-	$(CC) $(CFLAGS) -I$(CONFIG_DIR) -I$(CONFIG_DIR)/$* $< -o $@
-
-$(OUT_DIR):
-	mkdir $@
-
-%-rules.h.in:
-	touch $@
-
-.PHONY: clean
-clean:
-	rm -rf $(OUT_DIR)
+k2k: k2k.c $(CONFIG_DIR)/map-rules.h.in $(CONFIG_DIR)/multi-rules.h.in
+	$(CC) $(CFLAGS) -I$(CONFIG_DIR) $< -o $@
 
 .PHONY: install
-install:
-	# If you have run `make test` then do not forget to run `make clean` after. Otherwise you may install with debug logs on.
-	install -D --strip -t $(INSTALL_DIR) $(TARGETS)
+install: k2k
+	sudo rm /usr/local/bin/k2k
+	sudo mv k2k /usr/local/bin/
+	sudo systemctl restart udevmon.service
 
 .PHONY: test
 test:
 	CFLAGS=-DVERBOSE make
-	make install
-	timeout $(TIMEOUT) udevmon -c /etc/udevmon.yaml
+	sudo rm /usr/local/bin/k2k
+	sudo mv k2k /usr/local/bin/
+	sudo udevmon -c /etc/interception/udevmon.yaml
